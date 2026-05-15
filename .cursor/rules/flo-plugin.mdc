@@ -1,0 +1,41 @@
+---
+description: Core conventions for the flo-plugin public MCP repo
+alwaysApply: true
+---
+
+# flo-plugin conventions
+
+This is a **public** npm package and GitHub repo. See `AGENTS.md` for full
+context.
+
+## Critical: public repo security
+
+Never add to this repo:
+- Secrets, tokens, API keys, or passwords
+- Non-public infrastructure URLs (anything outside `*.floapp.co`)
+- AWS account IDs or private ARNs
+- Employee personal information
+
+## MCP server (`src/index.js`)
+
+- Single-file plain ESM — no build step, no TypeScript
+- All tools declared in the `tools[]` array; all handlers in the `CallToolRequestSchema` handler
+- Keep external dependencies to an absolute minimum (`npx` startup time is user-visible)
+- New tool pattern: add to `tools[]` → add handler block → done
+
+## npm publishing
+
+- Publish via tag only: `git tag vX.Y.Z && git push origin vX.Y.Z`
+- Never run `npm publish` manually (provenance attestation requires GitHub Actions)
+- Bump `version` in `package.json` before tagging
+- Tag format must be `vX.Y.Z` to trigger `.github/workflows/publish.yml`
+
+## Commit messages
+
+Follow Conventional Commits (`feat:`, `fix:`, `chore:` only, ≤72 chars).
+
+## Monorepo relationship
+
+Changes here should eventually be synced back to
+`Flomenco-Inc/flo:packages/flo-claude-plugin-mcp/`. That sync is manual
+(no automation yet). Note the sync in your PR description.
