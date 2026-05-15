@@ -1,27 +1,12 @@
 {
   "name": "flo-plugin",
   "version": "0.2.0",
-  "displayName": "Flo Plugin",
   "description": "Flomenco AI-powered media automation tools for Claude Code. Provides QC, delivery validation, and content moderation workflows via the Flo platform.",
   "author": {
     "name": "Flomenco",
     "email": "contact@flomenco.com"
   },
   "license": "MIT",
-  "private": false,
   "keywords": ["flomenco", "media", "qc", "delivery", "automation"],
-  "components": {
-    "mcp": true,
-    "commands": true,
-    "skills": false,
-    "agents": false,
-    "hooks": false
-  },
-  "repository": "https://github.com/Flomenco-Inc/flo-plugin",
-  "engines": {
-    "claude-code": ">=1.0.0"
-  },
-  "installation": {
-    "notes": "Requires Flo platform credentials. Contact your Flomenco administrator for FLO_OAUTH_CLIENT_ID and environment URLs before installing."
-  }
+  "repository": "https://github.com/Flomenco-Inc/flo-plugin"
 }
