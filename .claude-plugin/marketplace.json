@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "flo-plugins",
+  "version": "0.1.0",
+  "description": "Official Flomenco plugins for Claude Code. AI-powered media QC, content moderation, and delivery validation.",
+  "owner": {
+    "name": "Flomenco",
+    "email": "ryan@flomenco.com"
+  },
+  "plugins": [
+    {
+      "name": "flo-plugin",
+      "description": "AI-powered media QC, content moderation, and delivery validation via the Flo platform. Provides /flo-qc, /flo-moderate, and /flo-deliver commands.",
+      "version": "0.1.0",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/premsundaram-flo/flo-claude-plugin.git",
+        "ref": "main"
+      },
+      "category": "productivity",
+      "author": {
+        "name": "Flomenco",
+        "email": "ryan@flomenco.com"
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "flo-plugin": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@flomenco/claude-plugin-mcp"
+      ],
+      "env": {
+        "FLO_PLUGIN_ENV": "${FLO_PLUGIN_ENV}",
+        "FLO_INTERFACE_AGENT_INVOCATION_URL": "${FLO_INTERFACE_AGENT_INVOCATION_URL}",
+        "FLO_OAUTH_AUTHORIZE_URL": "${FLO_OAUTH_AUTHORIZE_URL}",
+        "FLO_OAUTH_TOKEN_URL": "${FLO_OAUTH_TOKEN_URL}",
+        "FLO_OAUTH_CLIENT_ID": "${FLO_OAUTH_CLIENT_ID}",
+        "FLO_OAUTH_USER_POOL_ID": "${FLO_OAUTH_USER_POOL_ID}",
+        "FLO_OAUTH_USER_POOL_NAME": "${FLO_OAUTH_USER_POOL_NAME}",
+        "FLO_OAUTH_EXPECTED_CLIENT_NAME": "${FLO_OAUTH_EXPECTED_CLIENT_NAME}",
+        "FLO_OAUTH_REDIRECT_URI": "${FLO_OAUTH_REDIRECT_URI}",
+        "FLO_OAUTH_SCOPES": "${FLO_OAUTH_SCOPES}"
+      }
+    }
+  }
+}

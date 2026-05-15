@@ -1,103 +1,160 @@
-# Flo Plugin for Claude
+# Flo Plugin for Claude Code
 
-MCP server that connects Claude to [Flo](https://floapp.co) — the AI-native media operations platform.
+The official Flomenco plugin for Claude Code. Brings Flo's AI-powered media automation directly into your development workflow via slash commands.
 
-## What it does
+---
 
-Once installed, Claude can search your Flo library, query assets, run logo QC, and execute Flo workflows directly from Claude Desktop or Claude Code.
+## Commands
 
-**Available tools:**
-
-| Tool | Description |
+| Command | Description |
 |---|---|
-| `flo_auth_login` | Authenticate via browser OAuth (PKCE) |
-| `flo_auth_status` | Check current auth state |
-| `flo_auth_logout` | Clear cached token |
-| `flo_auth_setup_help` | Troubleshoot OAuth configuration |
-| `flo_search` | Search your Flo asset library |
-| `flo_query` | Filename-first asset lookup |
-| `flo_analyze` | Analyze an asset |
-| `flo_skill_routing` | List available actions for an asset |
-| `flo_qc_logo` | Run logo QC against a reference image |
-| `flo_command` | Run any raw `/flo:*` command |
-| `flo_plugin_healthcheck` | Verify config, auth, and runtime connectivity |
-| `flo_happy_path_run` | End-to-end search → QC validation in one call |
+| `/flo-qc` | Run a QC check on a media asset, including logo consistency validation |
+| `/flo-moderate` | Run a content appropriateness check against a target rating and platform |
+| `/flo-deliver` | Validate a media asset against platform delivery specifications |
 
-## Install
+---
 
-### Claude Desktop (recommended)
+## Prerequisites
 
-Add the following to your `claude_desktop_config.json`:
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) installed and running
+- Node.js 18+ (required by `@flomenco/claude-plugin-mcp`)
+- Flo platform credentials — contact your Flomenco administrator
 
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`  
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+---
 
-```json
-{
-  "mcpServers": {
-    "flo-plugin": {
-      "command": "npx",
-      "args": ["-y", "@flomenco/claude-plugin-mcp"],
-      "env": {
-        "FLO_PLUGIN_ENV": "prod"
-      }
-    }
-  }
-}
-```
+## Installation
 
-Then restart Claude Desktop and run `flo_auth_login` to authenticate.
+### 1. Set environment variables
 
-> Your Flo OAuth credentials are fetched automatically from the Flo bootstrap API on first run. You can also set them explicitly — see [Configuration](#configuration) below.
-
-### Claude Code
+Copy `env.example` to `.env` and fill in your credentials:
 
 ```bash
-claude mcp add flo-plugin -- npx -y @flomenco/claude-plugin-mcp
+cp env.example .env
 ```
 
-## Authentication
+Then add the variables to your shell profile (`~/.zshrc` or `~/.bashrc`):
 
-The plugin uses OAuth 2.0 PKCE. On first use, run the `flo_auth_login` tool — it opens a browser window, you sign in to Flo, and the token is cached locally at `~/.flo/claude-plugin-mcp-token.json`.
+```bash
+export FLO_PLUGIN_ENV=prod
+export FLO_INTERFACE_AGENT_INVOCATION_URL=https://plugin.floapp.co/invocations
+export FLO_OAUTH_AUTHORIZE_URL=https://floapp.co/settings/integrations/auth/callback
+export FLO_OAUTH_TOKEN_URL=https://flomenco.auth.us-east-1.amazoncognito.com/oauth2/token
+export FLO_OAUTH_CLIENT_ID=your_client_id
+export FLO_OAUTH_USER_POOL_ID=your_pool_id
+export FLO_OAUTH_USER_POOL_NAME=your_pool_name
+export FLO_OAUTH_EXPECTED_CLIENT_NAME=your_client_name
+export FLO_OAUTH_REDIRECT_URI=http://127.0.0.1:8787/callback
+export FLO_OAUTH_SCOPES="openid email profile"
+```
 
-Tokens are refreshed automatically. Run `flo_auth_logout` to clear the cache.
+Reload your shell:
 
-## Configuration
+```bash
+source ~/.zshrc   # or ~/.bashrc
+```
 
-All configuration is via environment variables. Most are auto-discovered from the Flo bootstrap API when `FLO_PLUGIN_ENV` is set.
+### 2. Add the Flomenco marketplace
 
-| Variable | Default | Description |
-|---|---|---|
-| `FLO_PLUGIN_ENV` | `dev` | Environment: `dev`, `stg`, or `prod` |
-| `FLO_INTERFACE_AGENT_INVOCATION_URL` | _(from env)_ | Full invocation endpoint URL |
-| `FLO_OAUTH_AUTHORIZE_URL` | _(from env)_ | OAuth authorize URL (Flo web app `/auth/callback`) |
-| `FLO_OAUTH_TOKEN_URL` | _(from env)_ | Cognito token endpoint |
-| `FLO_OAUTH_CLIENT_ID` | _(from env)_ | Cognito app client ID |
-| `FLO_OAUTH_REDIRECT_URI` | `http://127.0.0.1:8787/callback` | Local loopback for auth code |
-| `FLO_OAUTH_SCOPES` | `openid email profile` | OAuth scopes |
-| `FLO_AUTH_TOKEN` | _(none)_ | Static bearer token (skips OAuth) |
+From within Claude Code:
+
+```
+/plugin marketplace add https://github.com/premsundaram-flo/flo-claude-plugin
+```
+
+### 3. Install the plugin
+
+```
+/plugin install flo-plugin
+```
+
+### 4. Authenticate
+
+```
+/flo-auth
+```
+
+Or invoke directly via the MCP tool:
+
+```
+flo_auth_login
+```
+
+### 5. Verify the installation
+
+Run the following in Claude Code and confirm all three pass:
+
+```
+flo_auth_login
+flo_plugin_healthcheck
+flo_query with query: "list available agents"
+```
+
+---
+
+## Usage
+
+### `/flo-qc`
+
+Runs a QC check on a media asset. You will be prompted for:
+
+- **Asset ID** — the media asset to check
+- **Logo Asset ID** — the reference logo to validate consistency against
+
+Claude will invoke the Flo QC Agent and return a structured report with pass/fail status per check, confidence scores, and timecode references for any failures.
+
+### `/flo-moderate`
+
+Runs a content appropriateness check. You will be prompted for:
+
+- **Asset ID** — the media asset to moderate
+- **Target Rating** — e.g. `G`, `PG`, `PG-13`, `TV-14`, `TV-MA`
+- **Target Platform** — e.g. `Netflix`, `Prime Video`, `YouTube`, `Broadcast`
+
+Returns a per-category moderation report with severity scores, flagged timecodes, and platform policy compliance status.
+
+### `/flo-deliver`
+
+Validates a media asset against platform delivery specs. You will be prompted for:
+
+- **Asset ID** — the media asset to validate
+- **Target Platform** — e.g. `Netflix`, `Disney+`, `Prime Video`
+- **Spec Version** *(optional)* — leave blank to use the latest spec
+
+Returns a delivery validation report grouped by severity: blocking issues first, then warnings, then advisories.
+
+---
+
+## Troubleshooting
+
+**`flo_auth_login` fails**
+Verify your `FLO_OAUTH_CLIENT_ID` and `FLO_OAUTH_TOKEN_URL` are set correctly for your environment. Check with your Flomenco administrator.
+
+**`flo_plugin_healthcheck` returns unhealthy**
+Confirm `FLO_INTERFACE_AGENT_INVOCATION_URL` points to the correct environment endpoint and that you have network access to it.
+
+**`npx @flomenco/claude-plugin-mcp` not found**
+Ensure Node.js 18+ is installed and `npx` is on your PATH. Run `node --version` to confirm.
+
+**Plugin commands not appearing after install**
+Run `/reload-plugins` inside Claude Code, or fully restart Claude Code.
+
+---
 
 ## Development
 
-```bash
-git clone https://github.com/Flomenco-Inc/flo-plugin.git
-cd flo-plugin
-npm install
-node src/index.js
-```
-
-### Install locally into Claude Desktop
+To run against the dev environment, set:
 
 ```bash
-# Optionally set AWS_PROFILE for auto-discovery of OAuth client
-export AWS_PROFILE=your-profile
-node tools/install-claude-desktop.js
+export FLO_PLUGIN_ENV=dev
+export FLO_INTERFACE_AGENT_INVOCATION_URL=https://plugin.dev.floapp.co/invocations
+export FLO_OAUTH_AUTHORIZE_URL=https://dev.floapp.co/settings/integrations/auth/callback
+export FLO_OAUTH_TOKEN_URL=https://flomenco-dev.auth.us-east-1.amazoncognito.com/oauth2/token
 ```
 
-## Contributing
+---
 
-Issues and pull requests welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## Internal Use Only
 
-## License
+This plugin is for internal Flomenco use. Do not distribute externally without authorization.
 
-[MIT](LICENSE) — © Flomenco, Inc.
+For access or support, contact your Flomenco administrator.
