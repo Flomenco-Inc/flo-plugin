@@ -1039,8 +1039,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const skillRaw = await invokeInterfaceAgent(`/flo:skill-routing ${assetId}`, args.authToken);
     const skillPayload = parseMaybeJson(skillRaw);
     const skills = skillPayload?.skills ?? [];
+    // Priority: dedicated analyze skill → summarize (for video) → qc → fallback
     const analyzeCommand =
-      pickSkillCommand(skills, ["analyze", "qc"]) ?? "/flo:analyze-image";
+      pickSkillCommand(skills, ["analyze", "summarize", "qc"]) ?? "/flo:analyze-image";
 
     const bodyText = await invokeInterfaceAgent(`${analyzeCommand} ${assetId}`, args.authToken);
     return asTextResult(parseMaybeJson(bodyText) || bodyText);
