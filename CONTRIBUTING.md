@@ -18,6 +18,47 @@ node src/index.js
 # Should hang waiting for MCP stdio — that's correct. Ctrl-C to exit.
 ```
 
+### Testing in Claude Code (dev environment)
+
+Add a global MCP override to `~/.claude.json` so Claude Code uses the dev
+environment instead of prod. Merge this into the top-level object (not inside
+`projects`):
+
+```json
+{
+  "mcpServers": {
+    "flo-plugin": {
+      "command": "npx",
+      "args": ["-y", "@flomenco/claude-plugin-mcp"],
+      "env": {
+        "FLO_PLUGIN_ENV": "dev",
+        "FLO_INTERFACE_AGENT_INVOCATION_URL": "https://plugin.dev.floapp.co/invocations",
+        "FLO_OAUTH_AUTHORIZE_URL": "https://dev.floapp.co/auth/callback",
+        "FLO_OAUTH_TOKEN_URL": "https://flomenco-dev.auth.us-east-1.amazoncognito.com/oauth2/token",
+        "FLO_OAUTH_CLIENT_ID": "7mf3htok8ptgojmbm4lksc91bt",
+        "FLO_OAUTH_USER_POOL_NAME": "flo-dev",
+        "FLO_OAUTH_EXPECTED_CLIENT_NAME": "flo-dev-spa",
+        "FLO_OAUTH_REDIRECT_URI": "http://127.0.0.1:8787/callback",
+        "FLO_OAUTH_SCOPES": "openid email profile"
+      }
+    }
+  }
+}
+```
+
+Note: the dev Cognito pool (`flo-dev`) does not yet have a dedicated
+`flo-dev-claude-plugin` app client — the `flo-dev-spa` client is used as a
+fallback. A dedicated plugin client should be created in Terraform to mirror
+the prod setup.
+
+Then reinstall and test:
+
+```bash
+claude plugin uninstall flo-plugin
+claude plugin install Flomenco-Inc/flo-plugin
+# In Claude: ask it to run flo_auth_login
+```
+
 ## Adding a new MCP tool
 
 All tools live in `src/index.js`. The pattern is:

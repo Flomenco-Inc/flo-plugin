@@ -100,6 +100,15 @@ When making changes:
 2. Keep `flo` monorepo's copy in sync manually or via a periodic sync script
    (not automated yet — see `docs/MIGRATION.md` for context)
 
+## Known gaps / open items
+
+| Item | Detail |
+|------|--------|
+| `flo-dev-claude-plugin` Cognito client | Doesn't exist in dev yet — `flo-dev-spa` is used as a fallback. Should be created in Terraform to mirror the prod `flo-prod-claude-plugin` client with correct redirect URIs. |
+| Prod client ID in `.mcp.json` | Currently `${FLO_OAUTH_CLIENT_ID}` (user must set env var). Could hardcode once prod client ID is confirmed. See README step 1. |
+| Bootstrap auto-discovery | `GET /integrations/claude-plugin/bootstrap` could be made public so the MCP server self-configures on startup — zero env vars for users. Not yet implemented. |
+| Monorepo OAuth fix | `fix: preserve oauth start params through tanstack router on callback route` is on `feature/flo-346-347-brand-rules` in `Flomenco-Inc/flo` — not yet merged to main. |
+
 ## Related repos
 
 | Repo | Purpose |
