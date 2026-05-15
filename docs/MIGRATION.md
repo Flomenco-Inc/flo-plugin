@@ -73,18 +73,18 @@ Reviewed all source files for secrets or private data before going public.
 
 ## Ongoing relationship with the `flo` monorepo
 
-The monorepo still has a copy of the MCP code at
-`packages/flo-claude-plugin-mcp/`. That copy is used for:
+`packages/flo-claude-plugin-mcp/` was **fully removed** from the monorepo on
+2026-05-14. The monorepo now consumes the plugin exclusively via the published
+npm package `@flomenco/claude-plugin-mcp`.
 
-- Local development alongside the interface-agent
-- Integration tests that require the full stack
+**Workflow going forward:**
+1. Make changes in this repo (`flo-plugin`)
+2. PR → merge → bump `package.json` version → tag `vX.Y.Z` → push tag
+3. GitHub Actions publishes the new version to npm automatically
+4. No manual sync to the monorepo is required
 
-**Source of truth**: This public repo is the authoritative source for the
-published npm package. The monorepo copy should be kept in sync manually
-(or via a future sync script) after PRs here are merged and tagged.
-
-There is no automated sync yet. When significant changes land here, update
-the monorepo copy too and note it in the PR description.
+The monorepo's `pnpm-workspace.yaml` no longer lists the package, and
+there are no source copies to keep in sync.
 
 ## OAuth fix applied at migration time
 
