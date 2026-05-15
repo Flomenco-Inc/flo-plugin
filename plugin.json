@@ -5,7 +5,7 @@
   "description": "Flomenco AI-powered media automation tools for Claude Code. Provides QC, delivery validation, and content moderation workflows via the Flo platform.",
   "author": {
     "name": "Flomenco",
-    "email": "ryan@flomenco.com"
+    "email": "contact@flomenco.com"
   },
   "license": "UNLICENSED",
   "private": true,
@@ -17,7 +17,7 @@
     "agents": false,
     "hooks": false
   },
-  "repository": "https://github.com/premsundaram-flo/flo-claude-plugin",
+  "repository": "https://github.com/Flomenco-Inc/flo-plugin",
   "engines": {
     "claude-code": ">=1.0.0"
   },
