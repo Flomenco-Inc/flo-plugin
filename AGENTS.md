@@ -66,11 +66,10 @@ public** — they are discoverable from any OAuth token's `iss` claim.
 ### Developer tools (`tools/`)
 - Internal-only scripts for Flomenco developers who have AWS credentials
 - They use the AWS CLI to auto-discover Cognito pool/client IDs
-- Not included in the published npm artifact (excluded via `files` in package.json)
-
-Wait — `tools/` IS in the `files` array in `package.json`. If any tool
-contains developer-only logic that shouldn't ship in the npm package, remove
-it from `files`.
+- **Not included in the published npm artifact** — `tools/` is intentionally
+  excluded from the `files` array in `package.json`. They are developer helpers
+  for Flomenco engineers with AWS credentials; external users should never need
+  them.
 
 ### npm publishing
 - Package: `@flomenco/claude-plugin-mcp` on the public npm registry

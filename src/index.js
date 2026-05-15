@@ -40,10 +40,8 @@ function defaultInvocationUrlForEnv() {
   if (env === "prod") {
     return "https://plugin.floapp.co/invocations";
   }
-  if (env === "stg") {
-    return "https://plugin.stg.floapp.co/invocations";
-  }
-  return "https://plugin.dev.floapp.co/invocations";
+  // Non-prod environments require explicit FLO_INTERFACE_AGENT_INVOCATION_URL.
+  return "";
 }
 
 function defaultUserPoolNameForEnv() {
@@ -51,10 +49,8 @@ function defaultUserPoolNameForEnv() {
   if (env === "prod") {
     return "flo-prod";
   }
-  if (env === "stg") {
-    return "flo-stg";
-  }
-  return "flo-dev";
+  // Non-prod environments must set FLO_OAUTH_USER_POOL_NAME explicitly.
+  return "";
 }
 
 function defaultExpectedClientNameForEnv() {
@@ -62,10 +58,8 @@ function defaultExpectedClientNameForEnv() {
   if (env === "prod") {
     return "flo-prod-claude-plugin";
   }
-  if (env === "stg") {
-    return "flo-stg-claude-plugin";
-  }
-  return "flo-dev-claude-plugin";
+  // Non-prod environments must set FLO_OAUTH_EXPECTED_CLIENT_NAME explicitly.
+  return "";
 }
 
 function defaultSettingsUrlForEnv() {
@@ -73,10 +67,7 @@ function defaultSettingsUrlForEnv() {
   if (env === "prod") {
     return "https://floapp.co/settings/api";
   }
-  if (env === "stg") {
-    return "https://stg.floapp.co/settings/api";
-  }
-  return "https://dev.floapp.co/settings/api";
+  return "https://floapp.co/settings/api";
 }
 
 function defaultWebAppUrlForEnv() {
@@ -84,10 +75,7 @@ function defaultWebAppUrlForEnv() {
   if (env === "prod") {
     return "https://floapp.co";
   }
-  if (env === "stg") {
-    return "https://stg.floapp.co";
-  }
-  return "https://dev.floapp.co";
+  return "https://floapp.co";
 }
 
 function getInvocationUrl() {
