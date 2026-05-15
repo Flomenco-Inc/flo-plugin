@@ -681,15 +681,17 @@ function assertSkillRoutingPayload(payload) {
       "Skill routing payload did not match expected contract."
     );
   }
-  const hasQc = payload.skills.some(
-    (s) => s && typeof s === "object" && s.command === "/flo:qc-logo"
-  );
-  if (!hasQc) {
-    throw new McpError(
-      ErrorCode.InternalError,
-      "Skill routing payload missing /flo:qc-logo option."
+}
+
+// Find the first skill whose command contains any of the given keywords (in priority order).
+function pickSkillCommand(skills, keywords) {
+  for (const keyword of keywords) {
+    const match = skills.find(
+      (s) => s && typeof s === "object" && typeof s.command === "string" && s.command.includes(keyword)
     );
+    if (match) return match.command;
   }
+  return null;
 }
 
 function assertQcPayload(payload) {
@@ -794,7 +796,7 @@ const tools = [
   {
     name: "flo_analyze",
     description:
-      "Analyze an asset directly (friendly alias for /flo:analyze-image <assetId>).",
+      "Analyze any asset (image or video). Automatically routes to the correct analysis skill for the asset type via skill routing — no need to call skill routing first.",
     inputSchema: {
       type: "object",
       properties: {
@@ -1032,8 +1034,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "flo_analyze") {
     const assetId = requireAssetId(args.assetId, "assetId");
-    const prompt = `/flo:analyze-image ${assetId}`;
-    const bodyText = await invokeInterfaceAgent(prompt, args.authToken);
+
+    // Discover the right analysis command for this asset type via skill routing.
+    const skillRaw = await invokeInterfaceAgent(`/flo:skill-routing ${assetId}`, args.authToken);
+    const skillPayload = parseMaybeJson(skillRaw);
+    const skills = skillPayload?.skills ?? [];
+    const analyzeCommand =
+      pickSkillCommand(skills, ["analyze", "qc"]) ?? "/flo:analyze-image";
+
+    const bodyText = await invokeInterfaceAgent(`${analyzeCommand} ${assetId}`, args.authToken);
     return asTextResult(parseMaybeJson(bodyText) || bodyText);
   }
 
@@ -1161,6 +1170,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       );
     }
     assertSkillRoutingPayload(skillPayload);
+    const qcCommand = pickSkillCommand(skillPayload.skills ?? [], ["qc-logo", "qc"]) ?? "/flo:qc-logo";
     steps.push({
       name: "skill_routing",
       response: skillPayload,
@@ -1176,7 +1186,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         includePdf: Boolean(args.includePdf),
       },
     };
-    const qcPrompt = `/flo:qc-logo ${JSON.stringify(qcCommandPayload)}`;
+    const qcPrompt = `${qcCommand} ${JSON.stringify(qcCommandPayload)}`;
     const qcRaw = await invokeInterfaceAgent(qcPrompt, args.authToken);
     const qcPayload = parseMaybeJson(qcRaw);
     if (!qcPayload) {
