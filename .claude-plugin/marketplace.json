@@ -5,7 +5,7 @@
   "description": "Official Flomenco plugins for Claude Code. AI-powered media QC, content moderation, and delivery validation.",
   "owner": {
     "name": "Flomenco",
-    "email": "ryan@flomenco.com"
+    "email": "contact@flomenco.com"
   },
   "plugins": [
     {
@@ -14,13 +14,13 @@
       "version": "0.1.0",
       "source": {
         "source": "url",
-        "url": "https://github.com/premsundaram-flo/flo-claude-plugin.git",
+        "url": "https://github.com/Flomenco-Inc/flo-plugin.git",
         "ref": "main"
       },
       "category": "productivity",
       "author": {
         "name": "Flomenco",
-        "email": "ryan@flomenco.com"
+        "email": "contact@flomenco.com"
       }
     }
   ]
