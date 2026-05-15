@@ -1,0 +1,49 @@
+{
+  "name": "@flomenco/claude-plugin-mcp",
+  "version": "0.1.3",
+  "description": "Flo MCP plugin for Claude — connects Claude to the Flo AI media platform",
+  "private": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Flomenco-Inc/flo-plugin.git"
+  },
+  "homepage": "https://github.com/Flomenco-Inc/flo-plugin",
+  "bugs": {
+    "url": "https://github.com/Flomenco-Inc/flo-plugin/issues"
+  },
+  "keywords": [
+    "claude",
+    "mcp",
+    "model-context-protocol",
+    "plugin",
+    "flo",
+    "ai",
+    "media"
+  ],
+  "type": "module",
+  "files": [
+    "src",
+    "tools",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "flo-claude-plugin-mcp": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node ./src/index.js",
+    "install:claude-desktop": "node ./tools/install-claude-desktop.js",
+    "uninstall:claude-desktop": "node ./tools/uninstall-claude-desktop.js",
+    "print:bootstrap-config": "node ./tools/print-bootstrap-config.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
