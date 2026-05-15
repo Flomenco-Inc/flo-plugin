@@ -7,16 +7,15 @@
         "@flomenco/claude-plugin-mcp"
       ],
       "env": {
-        "FLO_PLUGIN_ENV": "${FLO_PLUGIN_ENV}",
-        "FLO_INTERFACE_AGENT_INVOCATION_URL": "${FLO_INTERFACE_AGENT_INVOCATION_URL}",
-        "FLO_OAUTH_AUTHORIZE_URL": "${FLO_OAUTH_AUTHORIZE_URL}",
-        "FLO_OAUTH_TOKEN_URL": "${FLO_OAUTH_TOKEN_URL}",
+        "FLO_PLUGIN_ENV": "prod",
+        "FLO_INTERFACE_AGENT_INVOCATION_URL": "https://plugin.floapp.co/invocations",
+        "FLO_OAUTH_AUTHORIZE_URL": "https://floapp.co/auth/callback",
+        "FLO_OAUTH_TOKEN_URL": "https://flomenco.auth.us-east-1.amazoncognito.com/oauth2/token",
         "FLO_OAUTH_CLIENT_ID": "${FLO_OAUTH_CLIENT_ID}",
-        "FLO_OAUTH_USER_POOL_ID": "${FLO_OAUTH_USER_POOL_ID}",
-        "FLO_OAUTH_USER_POOL_NAME": "${FLO_OAUTH_USER_POOL_NAME}",
-        "FLO_OAUTH_EXPECTED_CLIENT_NAME": "${FLO_OAUTH_EXPECTED_CLIENT_NAME}",
-        "FLO_OAUTH_REDIRECT_URI": "${FLO_OAUTH_REDIRECT_URI}",
-        "FLO_OAUTH_SCOPES": "${FLO_OAUTH_SCOPES}"
+        "FLO_OAUTH_USER_POOL_NAME": "flo-prod",
+        "FLO_OAUTH_EXPECTED_CLIENT_NAME": "flo-prod-claude-plugin",
+        "FLO_OAUTH_REDIRECT_URI": "http://127.0.0.1:8787/callback",
+        "FLO_OAUTH_SCOPES": "openid email profile"
       }
     }
   }
