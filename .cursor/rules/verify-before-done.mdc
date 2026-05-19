@@ -1,0 +1,53 @@
+---
+description: Never claim a fix or feature is done without verified proof — test the plugin against the live API
+alwaysApply: true
+---
+
+# Verify Before Claiming Done
+
+**Never tell the user something is "fixed", "done", or "working" without proof.** The proof must be an actual runtime verification, not a code review of your own changes.
+
+## The rule
+
+Before any of these phrases (or equivalent):
+- "This should now work"
+- "The fix is ready"
+- "Issue is resolved"
+
+You MUST have **at least one** of the following:
+
+### For plugin code changes
+Run the plugin locally and confirm it connects:
+
+```bash
+npm run build && npm start
+# Verify: no startup errors, MCP handshake succeeds
+```
+
+### For OAuth/auth changes
+Test the actual OAuth flow against dev:
+
+```bash
+# Verify the authorize URL returns a redirect, not a 403/500
+curl -s -o /dev/null -w "%{http_code}" "https://dev.floapp.co/v1/oauth/google-drive/authorize-url"
+```
+
+### For API integration changes
+Call the actual API endpoint the plugin uses:
+
+```bash
+curl -s -X GET "https://api.dev.floapp.co/v1/<endpoint>" \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+## What does NOT count as verification
+
+- "I've reviewed the code and it looks correct"
+- "The tests pass" (unit tests mock the API)
+- "It compiled successfully"
+
+## When the user reports "still broken"
+
+Before making another code change:
+1. Reproduce the exact failure
+2. Follow `root-cause-before-fix.mdc` before writing code
