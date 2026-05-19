@@ -1,0 +1,90 @@
+---
+description: Diagnose and state the root cause with evidence before writing any fix — prevents shallow-fix loops
+alwaysApply: true
+---
+
+# Root Cause Before Fix
+
+**Before writing any code to fix a bug or address a "not working" report, you MUST state the root cause and evidence.** Do not skip this step. Do not say "let me try this" without first saying "the cause is X because of Y."
+
+## The problem this prevents
+
+The #1 failure pattern: user reports a bug → agent makes a plausible-looking code change → user tests → still broken → agent makes another guess → still broken → 5 rounds later, a whole day is wasted. The fix is to **diagnose before treating**.
+
+## Required format
+
+Before writing any fix, present this to the user:
+
+```
+**Root cause:** <one sentence — what is actually wrong>
+**Evidence:** <the specific log, API response, DB query, code path, or trace that proves it>
+**Why this fix:** <how the proposed change addresses the root cause, not just the symptom>
+```
+
+## How to gather evidence
+
+### For API errors (4xx/5xx)
+```bash
+# Check CloudWatch logs for the Lambda
+aws logs filter-log-events \
+  --log-group-name /aws/lambda/flo-dev-<service>-<function> \
+  --start-time $(date -v-30M +%s000) \
+  --profile 469128505698_FlomencoSuperAdmin --region us-east-1 \
+  --filter-pattern "ERROR" \
+  --query 'events[*].message' --output text | tail -20
+```
+
+### For 403 errors specifically
+Check whether the route exists in `openapi.yaml` — API Gateway returns 403 (not 404) for undeclared routes. Also check `service_config.yaml` for the Lambda mapping. See `flo-system-architecture.mdc` § "Debugging 403 errors".
+
+### For "deployed but not working"
+```bash
+# Verify the Lambda is actually running the new code
+aws lambda get-function --function-name flo-dev-<service>-<function> \
+  --profile 469128505698_FlomencoSuperAdmin --region us-east-1 \
+  --query 'Configuration.{LastModified:LastModified,CodeSha256:CodeSha256}'
+```
+
+### For frontend rendering issues
+```
+playwright > navigate to https://dev.floapp.co/<page>
+playwright > evaluate: document.querySelector('<selector>') !== null
+playwright > evaluate: JSON.stringify(window.__REACT_DEVTOOLS_GLOBAL_HOOK__ ? 'devtools' : 'no devtools')
+# Check network tab for failed API calls
+playwright > evaluate: fetch('https://api.dev.floapp.co/v1/<endpoint>', {headers: {'Authorization': 'Bearer ...'}}).then(r => r.status + ' ' + r.statusText)
+```
+
+### For auth/permissions issues
+```bash
+# Decode the JWT to see what claims the user actually has
+echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq '{sub, primary_org_id, org_memberships}'
+```
+
+## When multiple causes are plausible
+
+If you cannot isolate a single root cause, say so:
+
+```
+**Possible causes (ranked by likelihood):**
+1. <most likely> — evidence: <what supports this>
+2. <less likely> — evidence: <what supports this>
+
+**Investigation plan:** I'll check #1 first by <specific action>. If that's not it, I'll check #2.
+```
+
+This is vastly better than silently guessing and making a change.
+
+## Exceptions
+
+- **Obvious typos** (misspelled variable, missing import, syntax error) — fix directly, no diagnosis needed.
+- **User explicitly says "just try X"** — follow their instruction but note you haven't verified root cause.
+- **Greenfield feature development** — this rule applies to fixes, not to new feature implementation. But if a newly implemented feature doesn't work on first deploy, switch to diagnosis mode before iterating.
+
+## The shallow-fix smell test
+
+If you're about to write a fix and any of these are true, STOP and diagnose first:
+- You're not sure the code you're changing is actually executed at runtime
+- You haven't seen the actual error message/log/response
+- Your fix is "maybe this will help" rather than "this directly addresses the cause"
+- This is the second attempt at fixing the same reported issue
+- You're changing code in a file you haven't read yet

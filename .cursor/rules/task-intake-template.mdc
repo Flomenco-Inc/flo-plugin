@@ -1,0 +1,80 @@
+---
+description: Prompt the user to fill out a structured task intake form before starting any code change — ensures clear scope, acceptance criteria, and success conditions
+alwaysApply: true
+---
+
+# Task Intake Template
+
+**When the user requests a bug fix, feature, or any code change**, present this intake form and ask them to fill it out (or confirm your pre-filled version) before starting implementation.
+
+## When to use
+
+- User reports a bug ("X is broken", "Y doesn't work")
+- User requests a feature ("add X to Y", "build Z")
+- User asks for a code change ("update X to do Y")
+- User pastes an error and asks you to fix it
+
+## When to skip
+
+- User explicitly says "just do it" or "skip the form"
+- Continuation of a task already scoped in this session
+- Docs-only changes with no code impact
+- User is asking a question, not requesting a change
+
+## The template
+
+Present this and ask the user to fill in or confirm:
+
+```markdown
+## Task
+<one sentence: what needs to happen>
+
+## Context
+- Linear: <link or ID, if applicable>
+- Design ref: <Notion page / Slack thread / screenshot / previous chat>
+- Related PR: <link to existing PR, or "new">
+- Branch: <existing branch to continue, or "create new">
+
+## Acceptance Criteria (observable behaviors)
+1. When I <action>, I see <result>
+2. When I <action>, I see <result>
+3. Edge case: when <condition>, <expected behavior>
+
+## How You'll Verify (what you will test when I say it's done)
+- <specific test step with specific user/URL/action>
+- <specific test step>
+
+## Constraints
+- <anything unusual: scope limits, files not to touch, users to test with>
+
+## Known State
+- Current behavior: <what's happening now, including exact errors>
+- Already tried: <what was attempted that didn't work>
+```
+
+## How to use it
+
+### If the user gives enough detail
+Pre-fill the template from their message, then ask:
+
+> "Here's how I understand the task — please confirm or correct before I start:
+> [pre-filled template]"
+
+### If the user's request is vague
+Ask them to fill in the critical fields:
+
+> "Before I start, I need a few things to avoid wasted rounds:
+> 1. **Acceptance criteria** — what specifically should I see when this is working?
+> 2. **Known state** — what's the current behavior / exact error?
+> 3. **How you'll verify** — what will you test?"
+
+### Minimum viable intake
+At absolute minimum, before writing any code you must have:
+1. **What "done" looks like** (at least one observable acceptance criterion)
+2. **What's currently broken** (the specific symptom, not just "it doesn't work")
+
+If you don't have these two things, ask. Do not guess.
+
+## Why this matters
+
+Without clear acceptance criteria, the agent guesses what "done" means, builds the wrong thing, and the user has to test-and-reject multiple times. This template front-loads the 2 minutes of scoping that saves 2 hours of iteration.

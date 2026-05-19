@@ -1,0 +1,44 @@
+---
+description: Session start — assess current state before any code changes. Check open PRs and git state.
+alwaysApply: true
+---
+
+# Session Start: Current State Assessment
+
+**Before writing any code in a new session**, run this checklist. Present the results to the user as a status summary before proceeding.
+
+## Step 1 — Open PRs
+
+```bash
+gh pr list --repo Flomenco-Inc/flo-plugin --state open --author "@me" \
+  --json number,title,url,headRefName,reviewDecision \
+  --jq '.[] | "\(.number) \(.title) [\(.reviewDecision // "NONE")] \(.url)"'
+```
+
+If **any** open PRs exist:
+- **Failing CI** → fix before starting new work.
+- **Unresolved review threads** → reply and resolve before starting new work.
+- **Mergeable** → merge now.
+
+**Do not start a new task while a previous PR is stalled.**
+
+## Step 2 — Current branch and git state
+
+```bash
+git status --short
+git branch --show-current
+git log --oneline -5
+```
+
+## Step 3 — Present the status summary
+
+```
+## Session Status
+- Open PRs: <count> (<list with status>)
+- Current branch: <branch> (<clean/dirty>)
+- Blockers: <none, or list>
+```
+
+## Architecture reference
+
+This repo is the `@flomenco/claude-plugin-mcp` npm package. It connects to the flo API via OAuth. See `flo/.cursor/rules/flo-system-architecture.mdc` § "Claude plugin bootstrap + package" for how it integrates with the main system.
