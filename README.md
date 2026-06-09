@@ -1,42 +1,45 @@
 # Flo Plugin for Claude
 
 The official Flomenco plugin for Claude. Brings Flo's AI-powered media
-automation directly into Claude Code via slash commands, and connects Claude
-Desktop to the Flo platform via MCP.
+automation into Claude Code via slash commands, and connects Claude Desktop to
+the Flo platform via MCP.
 
 ---
 
-## Quick start
+## Quick start (Claude Code)
 
-### 1. Get your OAuth client ID
+### 1. Install the plugin
 
-Sign in to [floapp.co](https://floapp.co), go to **Settings → API**, and copy
-your OAuth client ID.
+In Claude Code:
 
-### 2. Add it to your shell profile
-
-```bash
-# ~/.zshrc or ~/.bashrc
-export FLO_OAUTH_CLIENT_ID=<your-client-id>
+```text
+/plugin marketplace add Flomenco-Inc/flo-plugin
+/plugin install flo-plugin@flo-plugins
+/reload-plugins
 ```
 
-Reload your shell:
-
-```bash
-source ~/.zshrc
-```
-
-### 3. Install the plugin
-
-```bash
-claude plugin install Flomenco-Inc/flo-plugin
-```
-
-### 4. Authenticate
+### 2. Authenticate
 
 Ask Claude to run `flo_auth_login` — it opens a browser window, completes the
 OAuth flow, and caches your token locally. You only need to do this once (or
 when your token expires).
+
+**Production:** the plugin ships prod defaults in `.mcp.json`. Copy your OAuth
+client ID from [floapp.co/settings/api](https://floapp.co/settings/api) (Claude
+Plugin tab) into the plugin MCP env only if `flo_auth_login` reports a missing
+client ID.
+
+**Dev / staging:** sign in to the matching Flo environment, open **Settings →
+API → Claude Plugin**, copy the env block, and merge it into your Claude Code
+MCP config (`~/.claude.json` global `mcpServers.flo-plugin.env`) before
+authenticating.
+
+### 3. Validate
+
+```text
+flo_plugin_healthcheck
+flo_happy_path_run
+```
 
 ---
 
@@ -44,20 +47,19 @@ when your token expires).
 
 | Command | Description |
 |---------|-------------|
-| `/flo-qc` | QC a media asset — logo consistency, spec compliance, timecode issues |
-| `/flo-moderate` | Content moderation against a target rating and platform |
-| `/flo-deliver` | Validate a media asset against platform delivery specs |
 | `/flo-search` | Search for assets in your Flo library |
 | `/flo-query` | Filename-first asset lookup |
+| `/flo-skill-routing` | List available actions for an asset |
+| `/flo-qc-logo` | Logo QC against a stored reference image |
+| `/flo-qc` | QC workflow picker (logo vs moderation) |
+| `/flo-moderate` | Content moderation against a target rating and platform |
+| `/flo-deliver` | Validate a media asset against platform delivery specs |
 | `/flo-analyze` | Analyze a media asset directly |
 | `/flo-config` | Show current auth and config status |
 
 ---
 
 ## MCP tools
-
-The plugin also exposes lower-level MCP tools for use in any MCP-capable
-client (Claude Desktop, Claude Code, etc.):
 
 | Tool | Description |
 |------|-------------|
@@ -96,11 +98,10 @@ Then fully quit and relaunch Claude Desktop.
 
 ## Troubleshooting
 
-**`flo_auth_login` fails with "Invalid URL"**
-Your `FLO_OAUTH_CLIENT_ID` env var is not set. Go to
-[floapp.co/settings/api](https://floapp.co/settings/api) to get your client ID,
-add `export FLO_OAUTH_CLIENT_ID=<id>` to your shell profile, reload, and
-reinstall the plugin.
+**`flo_auth_login` fails with "Invalid URL" or missing client ID**
+Open [floapp.co/settings/api](https://floapp.co/settings/api), copy the OAuth
+client ID from the Claude Plugin tab, and set `FLO_OAUTH_CLIENT_ID` in your MCP
+env block. For dev, copy the full env block from that page.
 
 **`flo_plugin_healthcheck` returns unreachable**
 Check that you have network access to `plugin.floapp.co`. If you're on a VPN,

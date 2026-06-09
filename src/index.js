@@ -47,7 +47,7 @@ function defaultInvocationUrlForEnv() {
 function defaultUserPoolNameForEnv() {
   const env = normalizedPluginEnv();
   if (env === "prod") {
-    return "flo-prod";
+    return "flo-prd";
   }
   // Non-prod environments must set FLO_OAUTH_USER_POOL_NAME explicitly.
   return "";
@@ -56,9 +56,25 @@ function defaultUserPoolNameForEnv() {
 function defaultExpectedClientNameForEnv() {
   const env = normalizedPluginEnv();
   if (env === "prod") {
-    return "flo-prod-claude-plugin";
+    return "flo-prd-spa";
   }
   // Non-prod environments must set FLO_OAUTH_EXPECTED_CLIENT_NAME explicitly.
+  return "";
+}
+
+function defaultOAuthAuthorizeUrlForEnv() {
+  const env = normalizedPluginEnv();
+  if (env === "prod") {
+    return "https://floapp.co/auth/callback";
+  }
+  return "";
+}
+
+function defaultOAuthTokenUrlForEnv() {
+  const env = normalizedPluginEnv();
+  if (env === "prod") {
+    return "https://flomenco-prd.auth.us-east-1.amazoncognito.com/oauth2/token";
+  }
   return "";
 }
 
@@ -67,7 +83,10 @@ function defaultSettingsUrlForEnv() {
   if (env === "prod") {
     return "https://floapp.co/settings/api";
   }
-  return "https://floapp.co/settings/api";
+  if (env === "stg") {
+    return "https://stg.floapp.co/settings/api";
+  }
+  return "https://dev.floapp.co/settings/api";
 }
 
 function defaultWebAppUrlForEnv() {
@@ -75,7 +94,10 @@ function defaultWebAppUrlForEnv() {
   if (env === "prod") {
     return "https://floapp.co";
   }
-  return "https://floapp.co";
+  if (env === "stg") {
+    return "https://stg.floapp.co";
+  }
+  return "https://dev.floapp.co";
 }
 
 function getInvocationUrl() {
@@ -98,8 +120,12 @@ function getDefaultAuthToken() {
 }
 
 function getOAuthConfig(strict = false) {
-  const authorizeUrl = (process.env.FLO_OAUTH_AUTHORIZE_URL || "").trim();
-  const tokenUrl = (process.env.FLO_OAUTH_TOKEN_URL || "").trim();
+  const authorizeUrl = (
+    process.env.FLO_OAUTH_AUTHORIZE_URL || defaultOAuthAuthorizeUrlForEnv()
+  ).trim();
+  const tokenUrl = (
+    process.env.FLO_OAUTH_TOKEN_URL || defaultOAuthTokenUrlForEnv()
+  ).trim();
   const clientId = (process.env.FLO_OAUTH_CLIENT_ID || "").trim();
   const scope = (process.env.FLO_OAUTH_SCOPES || "openid email profile").trim();
   const redirectUri = (

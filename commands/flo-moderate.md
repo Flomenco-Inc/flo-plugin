@@ -19,7 +19,13 @@ When this command is invoked:
 
 2. Confirm the inputs with the user before proceeding.
 
-3. Invoke the `flo_query` MCP tool with a prompt structured as follows:
+3. Invoke the `flo_command` MCP tool with:
+
+```
+/flo:moderate <assetId>
+```
+
+If that does not return a structured report, fall back to `flo_query` with a prompt structured as follows:
 
 ```
 Run a content appropriateness check on asset [ASSET_ID].
