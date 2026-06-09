@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "flo-plugin",
-      "description": "AI-powered media QC, content moderation, and delivery validation via the Flo platform. Provides /flo-qc, /flo-moderate, and /flo-deliver commands.",
+      "description": "AI-powered media QC, content moderation, and delivery validation via the Flo platform. Provides /flo-search, /flo-skill-routing, /flo-qc-logo, /flo-moderate, and /flo-deliver commands.",
       "version": "0.3.1",
       "source": {
         "source": "url",
