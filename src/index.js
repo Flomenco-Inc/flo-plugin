@@ -992,7 +992,7 @@ const tools = [
 const server = new Server(
   {
     name: "flo-claude-plugin-mcp",
-    version: "0.1.0",
+    version: "0.3.0",
   },
   {
     capabilities: {
