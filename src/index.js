@@ -643,14 +643,51 @@ async function invokeInterfaceAgent(prompt, explicitAuthToken, interactiveAuth =
   return bodyText;
 }
 
+function coerceAgentCorePayload(parsed) {
+  if (parsed === null || parsed === undefined) {
+    return null;
+  }
+  if (typeof parsed !== "object") {
+    return parsed;
+  }
+  const inner = parsed.text;
+  if (typeof inner === "string" && inner.trim().startsWith("{")) {
+    try {
+      return JSON.parse(inner);
+    } catch {
+      // Fall back to the outer envelope when nested JSON is malformed.
+    }
+  }
+  return parsed;
+}
+
 function parseMaybeJson(text) {
   const trimmed = (text || "").trim();
   if (!trimmed) {
     return null;
   }
   try {
-    return JSON.parse(trimmed);
+    return coerceAgentCorePayload(JSON.parse(trimmed));
   } catch {
+    // AgentCore streaming responses arrive as SSE `data: {...}` lines.
+    for (const line of trimmed.split(/\r?\n/)) {
+      const stripped = line.trim();
+      if (!stripped.startsWith("data:")) {
+        continue;
+      }
+      const chunk = stripped.slice(5).trim();
+      if (!chunk) {
+        continue;
+      }
+      try {
+        const payload = coerceAgentCorePayload(JSON.parse(chunk));
+        if (payload !== null && payload !== undefined) {
+          return payload;
+        }
+      } catch {
+        continue;
+      }
+    }
     return null;
   }
 }
@@ -992,7 +1029,7 @@ const tools = [
 const server = new Server(
   {
     name: "flo-claude-plugin-mcp",
-    version: "0.3.1",
+    version: "0.3.2",
   },
   {
     capabilities: {
