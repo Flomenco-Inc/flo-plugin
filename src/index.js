@@ -596,14 +596,20 @@ async function resolveAuthToken(explicitAuthToken, interactive) {
     return envToken;
   }
 
-  const oauth = getOAuthConfig(false);
-  if (!oauth.ready) {
-    return "";
-  }
-
   const cachedToken = await readCachedToken();
   if (tokenIsUsable(cachedToken)) {
     return cachedToken.access_token;
+  }
+
+  const oauth = getOAuthConfig(false);
+  if (!oauth.ready) {
+    if (!interactive) {
+      return "";
+    }
+    throw new McpError(
+      ErrorCode.InvalidRequest,
+      "OAuth not configured. Set FLO_OAUTH_CLIENT_ID (Settings → API → Claude Plugin, or flo_auth_setup_help)."
+    );
   }
 
   const refreshedToken = await refreshAccessTokenIfPossible(cachedToken);
