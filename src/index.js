@@ -27,6 +27,71 @@ const DEFAULT_TOKEN_CACHE_PATH = path.join(
   ".flo",
   "claude-plugin-mcp-token.json"
 );
+const DEFAULT_MCP_ENV_FILE = path.join(
+  os.homedir(),
+  ".flo",
+  "claude-plugin-mcp.env"
+);
+const LEGACY_CLAUDE_JSON_PATH = path.join(os.homedir(), ".claude.json");
+const LEGACY_MCP_SERVER_NAME = "flo-plugin";
+
+async function applyEnvOverrides(env) {
+  if (!env || typeof env !== "object") {
+    return;
+  }
+  for (const [key, value] of Object.entries(env)) {
+    if (value == null || value === "") {
+      continue;
+    }
+    if (!process.env[key]) {
+      process.env[key] = String(value);
+    }
+  }
+}
+
+async function loadDotEnvFile(filePath) {
+  try {
+    const raw = await readFile(filePath, "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) {
+        continue;
+      }
+      const eq = trimmed.indexOf("=");
+      if (eq <= 0) {
+        continue;
+      }
+      const key = trimmed.slice(0, eq).trim();
+      let value = trimmed.slice(eq + 1).trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      if (key && !process.env[key]) {
+        process.env[key] = value;
+      }
+    }
+  } catch {
+    // optional local overrides
+  }
+}
+
+async function mergeMcpEnvFromUserConfig() {
+  const envFile = (process.env.FLO_MCP_ENV_FILE || DEFAULT_MCP_ENV_FILE).trim();
+  if (envFile) {
+    await loadDotEnvFile(envFile);
+  }
+
+  try {
+    const raw = await readFile(LEGACY_CLAUDE_JSON_PATH, "utf8");
+    const config = JSON.parse(raw);
+    await applyEnvOverrides(config?.mcpServers?.[LEGACY_MCP_SERVER_NAME]?.env);
+  } catch {
+    // optional legacy MCP config in ~/.claude.json
+  }
+}
 
 function normalizedPluginEnv() {
   const raw = (process.env.FLO_PLUGIN_ENV || "dev").trim().toLowerCase();
@@ -1035,6 +1100,8 @@ const tools = [
     },
   },
 ];
+
+await mergeMcpEnvFromUserConfig();
 
 const server = new Server(
   {

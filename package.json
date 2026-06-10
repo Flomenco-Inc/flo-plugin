@@ -1,6 +1,6 @@
 {
   "name": "@flomenco/claude-plugin-mcp",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Flo MCP plugin for Claude — connects Claude to the Flo AI media platform",
   "private": false,
   "license": "MIT",
@@ -31,6 +31,7 @@
     "flo-claude-plugin-mcp": "./src/index.js"
   },
   "scripts": {
+    "sync-versions": "node ./scripts/sync-versions.js",
     "start": "node ./src/index.js",
     "install:claude-desktop": "node ./tools/install-claude-desktop.js",
     "uninstall:claude-desktop": "node ./tools/uninstall-claude-desktop.js",
