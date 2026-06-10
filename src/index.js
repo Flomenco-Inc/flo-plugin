@@ -730,10 +730,79 @@ function coerceAgentCorePayload(parsed) {
     try {
       return JSON.parse(inner);
     } catch {
-      // Fall back to the outer envelope when nested JSON is malformed.
+      // Inner JSON may be split across streamed chunks; assembly handles that.
     }
   }
   return parsed;
+}
+
+function parseEmbeddedJsonObject(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const tryParse = (candidate) => {
+    try {
+      return coerceAgentCorePayload(JSON.parse(candidate));
+    } catch {
+      return null;
+    }
+  };
+
+  let payload = tryParse(trimmed);
+  if (payload !== null) {
+    return payload;
+  }
+
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    payload = tryParse(trimmed.slice(start, end + 1));
+    if (payload !== null) {
+      return payload;
+    }
+  }
+
+  return null;
+}
+
+function assembleAgentCoreTextFromStream(raw) {
+  const trimmed = (raw || "").trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  let assembled = "";
+  for (const line of trimmed.split(/\r?\n/)) {
+    const stripped = line.trim();
+    if (!stripped.startsWith("data:")) {
+      continue;
+    }
+    const chunk = stripped.slice(5).trim();
+    if (!chunk) {
+      continue;
+    }
+    try {
+      const event = JSON.parse(chunk);
+      if (event && typeof event.text === "string") {
+        assembled += event.text;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  if (assembled) {
+    return assembled;
+  }
+
+  const envelope = parseEmbeddedJsonObject(trimmed);
+  if (envelope && typeof envelope === "object" && typeof envelope.text === "string") {
+    return envelope.text;
+  }
+
+  return trimmed;
 }
 
 function parseMaybeJson(text) {
@@ -741,30 +810,16 @@ function parseMaybeJson(text) {
   if (!trimmed) {
     return null;
   }
-  try {
-    return coerceAgentCorePayload(JSON.parse(trimmed));
-  } catch {
-    // AgentCore streaming responses arrive as SSE `data: {...}` lines.
-    for (const line of trimmed.split(/\r?\n/)) {
-      const stripped = line.trim();
-      if (!stripped.startsWith("data:")) {
-        continue;
-      }
-      const chunk = stripped.slice(5).trim();
-      if (!chunk) {
-        continue;
-      }
-      try {
-        const payload = coerceAgentCorePayload(JSON.parse(chunk));
-        if (payload !== null && payload !== undefined) {
-          return payload;
-        }
-      } catch {
-        continue;
-      }
+
+  const assembled = assembleAgentCoreTextFromStream(trimmed);
+  if (assembled) {
+    const fromAssembled = parseEmbeddedJsonObject(assembled);
+    if (fromAssembled !== null) {
+      return fromAssembled;
     }
-    return null;
   }
+
+  return parseEmbeddedJsonObject(trimmed);
 }
 
 function asTextResult(value) {
