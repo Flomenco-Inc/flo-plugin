@@ -1,6 +1,6 @@
 {
   "name": "flo-plugin",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Flomenco AI-powered media automation tools for Claude Code. Provides QC, delivery validation, and content moderation workflows via the Flo platform.",
   "author": {
     "name": "Flomenco",
