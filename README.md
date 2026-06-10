@@ -30,9 +30,12 @@ Plugin tab) into the plugin MCP env only if `flo_auth_login` reports a missing
 client ID.
 
 **Dev / staging:** sign in to the matching Flo environment, open **Settings →
-API → Claude Plugin**, copy the env block, and merge it into your Claude Code
-MCP config (`~/.claude.json` global `mcpServers.flo-plugin.env`) before
-authenticating.
+API → Claude Plugin**, copy the env block, and merge it into the **plugin
+MCP env** (Claude Code → plugin `flo-plugin` MCP settings, or
+`~/.claude.json` under the `plugin:flo-plugin:flo-plugin` server entry) before
+authenticating. Marketplace install ships prod defaults in `.mcp.json`; dev
+testers must override `FLO_PLUGIN_ENV`, invocation URL, OAuth URLs, and
+`FLO_OAUTH_CLIENT_ID` from the Settings tab.
 
 ### 3. Validate
 
