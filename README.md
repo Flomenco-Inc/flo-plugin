@@ -4,6 +4,11 @@ The official Flomenco plugin for Claude. Brings Flo's AI-powered media
 automation into Claude Code via slash commands, and connects Claude Desktop to
 the Flo platform via MCP.
 
+**Do not use `npx @flomenco/claude-plugin-mcp` in Claude Code** — npm is stuck
+at 0.2.2 without AgentCore SSE parsing, so `flo_happy_path_run` fails while
+individual tools appear to work. Use marketplace install (or `scripts/run-mcp.sh`
+from this repo).
+
 ---
 
 ## Quick start (Claude Code)

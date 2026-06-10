@@ -822,6 +822,18 @@ function parseMaybeJson(text) {
   return parseEmbeddedJsonObject(trimmed);
 }
 
+function requireParsedInterfaceResponse(raw, context) {
+  const payload = parseMaybeJson(raw);
+  if (!payload) {
+    const preview = (raw || "").replace(/\s+/g, " ").trim().slice(0, 240);
+    throw new McpError(
+      ErrorCode.InternalError,
+      `${context}: response was not valid JSON. Preview: ${preview}`
+    );
+  }
+  return payload;
+}
+
 function asTextResult(value) {
   if (typeof value === "string") {
     return { content: [{ type: "text", text: value }] };
@@ -1341,13 +1353,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (!selectedAssetId) {
       const searchPrompt = `/flo:search ${query}`;
       const searchRaw = await invokeInterfaceAgent(searchPrompt, args.authToken);
-      const searchPayload = parseMaybeJson(searchRaw);
-      if (!searchPayload) {
-        throw new McpError(
-          ErrorCode.InternalError,
-          "Search response was not valid JSON during happy-path run."
-        );
-      }
+      const searchPayload = requireParsedInterfaceResponse(
+        searchRaw,
+        "Search response during happy-path run"
+      );
       selectedAssetId = assertSearchPayload(searchPayload);
       steps.push({
         name: "search",
@@ -1359,13 +1368,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     const skillPrompt = `/flo:skill-routing ${selectedAssetId}`;
     const skillRaw = await invokeInterfaceAgent(skillPrompt, args.authToken);
-    const skillPayload = parseMaybeJson(skillRaw);
-    if (!skillPayload) {
-      throw new McpError(
-        ErrorCode.InternalError,
-        "Skill-routing response was not valid JSON during happy-path run."
-      );
-    }
+    const skillPayload = requireParsedInterfaceResponse(
+      skillRaw,
+      "Skill-routing response during happy-path run"
+    );
     assertSkillRoutingPayload(skillPayload);
     const qcCommand = pickSkillCommand(skillPayload.skills ?? [], ["qc-logo", "qc"]) ?? "/flo:qc-logo";
     steps.push({
@@ -1385,13 +1391,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     };
     const qcPrompt = `${qcCommand} ${JSON.stringify(qcCommandPayload)}`;
     const qcRaw = await invokeInterfaceAgent(qcPrompt, args.authToken);
-    const qcPayload = parseMaybeJson(qcRaw);
-    if (!qcPayload) {
-      throw new McpError(
-        ErrorCode.InternalError,
-        "QC response was not valid JSON during happy-path run."
-      );
-    }
+    const qcPayload = requireParsedInterfaceResponse(
+      qcRaw,
+      "QC response during happy-path run"
+    );
     assertQcPayload(qcPayload);
     steps.push({
       name: "qc_logo",
