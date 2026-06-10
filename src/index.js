@@ -13,6 +13,10 @@ import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const PACKAGE_VERSION = require("../package.json").version;
 
 const DEFAULT_TIMEOUT_MS = 60_000;
 const OAUTH_WAIT_TIMEOUT_MS = 180_000;
@@ -1029,7 +1033,7 @@ const tools = [
 const server = new Server(
   {
     name: "flo-claude-plugin-mcp",
-    version: "0.3.2",
+    version: PACKAGE_VERSION,
   },
   {
     capabilities: {
@@ -1177,6 +1181,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const probe = await probeInvocation(args.authToken);
     return asTextResult({
       status: "ok",
+      mcpPackageVersion: PACKAGE_VERSION,
       auth: {
         oauthConfigured: oauth.ready,
         envTokenConfigured: envToken,
