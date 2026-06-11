@@ -1,9 +1,9 @@
 {
   "mcpServers": {
     "flo-plugin": {
-      "command": "bash",
+      "command": "node",
       "args": [
-        "${CLAUDE_PLUGIN_ROOT}/scripts/run-mcp.sh"
+        "${CLAUDE_PLUGIN_ROOT}/scripts/run-mcp.js"
       ],
       "env": {
         "FLO_PLUGIN_ENV": "prod",
