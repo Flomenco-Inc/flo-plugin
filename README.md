@@ -6,7 +6,7 @@ the Flo platform via MCP.
 
 **Do not use `npx @flomenco/claude-plugin-mcp` in Claude Code** — npm is stuck
 at 0.2.2 without AgentCore SSE parsing, so `flo_happy_path_run` fails while
-individual tools appear to work. Use marketplace install (or `scripts/run-mcp.sh`
+individual tools appear to work. Use marketplace install (or `node scripts/run-mcp.js`
 from this repo).
 
 ---
@@ -52,6 +52,17 @@ Run `npm run sync-versions` before release so `marketplace.json` matches
 flo_plugin_healthcheck
 flo_happy_path_run
 ```
+
+### Windows, macOS, and Linux
+
+The MCP server starts via **`node scripts/run-mcp.js`** (see `.mcp.json`). You
+need **Node.js ≥ 22.13** and **npm** on your PATH. No Bash or WSL required.
+
+- Config and tokens live under `%USERPROFILE%\.flo\` on Windows and `~/.flo/` on
+  Unix.
+- OAuth login opens your default browser (`cmd /c start` on Windows).
+- Optional env overrides: `%USERPROFILE%\.flo\claude-plugin-mcp.env` (Windows) or
+  `~/.flo/claude-plugin-mcp.env` (macOS/Linux).
 
 ---
 
