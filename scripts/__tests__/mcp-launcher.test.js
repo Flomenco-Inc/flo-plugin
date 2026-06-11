@@ -35,16 +35,19 @@ describe("loadLocalEnvFile", () => {
     const filePath = path.join(os.tmpdir(), `flo-mcp-env-${Date.now()}.env`);
     const { writeFile, unlink } = await import("node:fs/promises");
     process.env.FLO_TEST_MCP_LAUNCHER = "existing";
-    await writeFile(
-      filePath,
-      "FLO_TEST_MCP_LAUNCHER=from_file\nFLO_TEST_MCP_LAUNCHER_NEW=hello\n",
-      "utf8"
-    );
-    await loadLocalEnvFile(filePath);
-    assert.equal(process.env.FLO_TEST_MCP_LAUNCHER, "existing");
-    assert.equal(process.env.FLO_TEST_MCP_LAUNCHER_NEW, "hello");
-    delete process.env.FLO_TEST_MCP_LAUNCHER;
-    delete process.env.FLO_TEST_MCP_LAUNCHER_NEW;
-    await unlink(filePath);
+    try {
+      await writeFile(
+        filePath,
+        "FLO_TEST_MCP_LAUNCHER=from_file\nFLO_TEST_MCP_LAUNCHER_NEW=hello\n",
+        "utf8"
+      );
+      await loadLocalEnvFile(filePath);
+      assert.equal(process.env.FLO_TEST_MCP_LAUNCHER, "existing");
+      assert.equal(process.env.FLO_TEST_MCP_LAUNCHER_NEW, "hello");
+    } finally {
+      delete process.env.FLO_TEST_MCP_LAUNCHER;
+      delete process.env.FLO_TEST_MCP_LAUNCHER_NEW;
+      await unlink(filePath).catch(() => {});
+    }
   });
 });
